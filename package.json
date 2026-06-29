@@ -1,0 +1,21 @@
+{
+  "name": "webperf-cli",
+  "version": "1.0.0",
+  "description": "Auditoría de performance y calidad para apps web",
+  "type": "module",
+  "bin": {
+    "webperf": "./cli.js"
+  },
+  "scripts": {
+    "setup": "playwright install chromium"
+  },
+  "dependencies": {
+    "axe-core": "^4.10.2",
+    "chalk": "^5.3.0",
+    "chrome-launcher": "^1.1.2",
+    "commander": "^12.1.0",
+    "lighthouse": "^12.5.1",
+    "playwright": "^1.48.2",
+    "web-vitals": "^4.2.4"
+  }
+}
