@@ -1,0 +1,41 @@
+{
+  "name": "nombre-del-proyecto",
+  "projectPath": "/ruta/absoluta/al/repo/local",
+  "baseUrl": "http://localhost:3000",
+  "env": "local",
+
+  "pages": ["/", "/ruta-a-auditar"],
+
+  "breakpoints": {
+    "desktop": 1280,
+    "tablet": 768,
+    "mobile": 375
+  },
+
+  "ga": {
+    "measurementId": "G-XXXXXXXXXX",
+    "watchEvents": ["page_view", "view_item_list", "select_item", "add_to_cart"]
+  },
+
+  "rum": {
+    "provider": "datadog",
+    "expectedEndpoint": "browser-intake-datadoghq.com"
+  },
+
+  "bff": {
+    "endpoints": ["/api/footer", "/api/home"],
+    "fallbackTest": false
+  },
+
+  "cache": {
+    "endpoints": ["/api/footer"]
+  },
+
+  "lighthouse": {
+    "formFactor": "mobile"
+  },
+
+  "component": {
+    "selector": "[data-testid=\"footer\"]"
+  }
+}
