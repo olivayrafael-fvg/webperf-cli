@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.0] - En progreso
+## [0.2.0] - 2026-06-30
 
 ### Added
 - Validación manual de configuración al inicio de los comandos `run` e `history`.
@@ -15,7 +15,9 @@
 - Se declaró `engines.node` con la versión mínima soportada (`>=20.12.0`, requerida por `process.loadEnvFile`).
 - Se corrigió el README para reflejar el requisito real de Node.
 - Los reportes ahora se guardan en un directorio único por ejecución (`YYYY-MM-DD/<project>/<HH-mm-ss>/`) para evitar sobrescrituras entre runs del mismo día.
+- La tarjeta de resumen "Lighthouse score" se renombró a "Lighthouse Performance" para no confundirse con un promedio de las 4 categorías (sigue siendo el promedio de Performance únicamente).
 
 ### Fixed
 - Se eliminó la versión hardcodeada (`1.0.0`) del CLI; `webperf --version` ahora lee de `package.json`.
 - Se sincronizó `package-lock.json` con la versión y `engines` de `package.json`.
+- En `report.md`, un score de Lighthouse no disponible (camino de compatibilidad con reportes generados antes de esta versión) ya no se muestra como ❌ reprobado — se muestra como sin datos.

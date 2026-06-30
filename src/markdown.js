@@ -81,7 +81,7 @@ function lighthouseSection(pages) {
   const blocks = withLh.map(p => {
     const { scores, score, formFactor, metrics, consoleErrors, thirdPartyCookies } = p.lighthouse;
     const s = scores ?? { performance: score };
-    const si = v => v >= 90 ? '✅' : v >= 50 ? '⚠️' : '❌';
+    const si = v => v == null ? '' : v >= 90 ? '✅' : v >= 50 ? '⚠️' : '❌';
 
     const scoresRow = `| Performance | Accessibility | Best Practices | SEO |
 |---|---|---|---|
