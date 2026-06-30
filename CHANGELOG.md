@@ -8,6 +8,7 @@
 - Tests nativos con `node:test` para la validación de configuración (`test/config.test.js`).
 - Script `lint` mínimo para chequeo de sintaxis sin dependencias externas (`scripts/check-syntax.js`).
 - CI básico con GitHub Actions para ejecutar instalación limpia, lint y tests.
+- Lighthouse ahora reporta los 4 scores de categoría: Performance, Accessibility, Best Practices y SEO.
 
 ### Changed
 - Se unificó el versionado del CLI usando `package.json` como fuente única de verdad.

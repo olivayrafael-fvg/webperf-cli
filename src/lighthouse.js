@@ -51,7 +51,7 @@ export async function runLighthouse(url, { formFactor = 'mobile' } = {}) {
         ? { mobile: true, width: 375, height: 812, deviceScaleFactor: 3, disabled: false }
         : { mobile: false, width: 1280, height: 800, deviceScaleFactor: 1, disabled: false },
       throttlingMethod: 'simulate',
-      onlyCategories: ['performance', 'best-practices'],
+      onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
     };
 
     const result = await lighthouse(url, flags);
@@ -66,8 +66,16 @@ export async function runLighthouse(url, { formFactor = 'mobile' } = {}) {
         url: e.sourceLocation?.url,
       }));
 
+    const toScore = cat => Math.round((categories[cat]?.score ?? 0) * 100);
+
     return {
-      score: Math.round((categories.performance?.score ?? 0) * 100),
+      score: toScore('performance'),
+      scores: {
+        performance:   toScore('performance'),
+        accessibility: toScore('accessibility'),
+        bestPractices: toScore('best-practices'),
+        seo:           toScore('seo'),
+      },
       formFactor,
       metrics: {
         FCP:  extractMetric(audits['first-contentful-paint'], 'FCP'),
