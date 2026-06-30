@@ -12,6 +12,7 @@
 - Se unificó el versionado del CLI usando `package.json` como fuente única de verdad.
 - Se declaró `engines.node` con la versión mínima soportada (`>=20.12.0`, requerida por `process.loadEnvFile`).
 - Se corrigió el README para reflejar el requisito real de Node.
+- Los reportes ahora se guardan en un directorio único por ejecución (`YYYY-MM-DD/<project>/<HH-mm-ss>/`) para evitar sobrescrituras entre runs del mismo día.
 
 ### Fixed
 - Se eliminó la versión hardcodeada (`1.0.0`) del CLI; `webperf --version` ahora lee de `package.json`.

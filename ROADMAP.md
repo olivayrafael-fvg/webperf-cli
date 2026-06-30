@@ -51,7 +51,7 @@ Relevamiento hecho sobre el código real en `release/0.1` (commit `7890d8b`):
 | 3 | Sin validación de config | Medio-Alto | Un config mal formado (falta `pages`, `baseUrl` mal tipado) falla en lo profundo del runner con errores poco claros, no en el borde. |
 | 4 | Sin scripts de test/lint/smoke | Alto | No hay forma objetiva de saber si un cambio rompió un módulo antes de mergear. |
 | 5 | Sin CI | Alto | Nada impide mergear código roto; depende 100% de que alguien corra manualmente. |
-| 6 | Reportes se sobreescriben en el mismo día/proyecto | Medio | Corridas múltiples el mismo día pierden el HTML/MD/screenshots anteriores (el historial JSONL sí persiste, pero el reporte visual no). Afecta directamente el caso de uso "antes/después" si se hace en el mismo día. |
+| 6 | Reportes se sobreescriben en el mismo día/proyecto — **resuelto en v0.2.0** | Medio | Corridas múltiples el mismo día pierden el HTML/MD/screenshots anteriores (el historial JSONL sí persiste, pero el reporte visual no). Afecta directamente el caso de uso "antes/después" si se hace en el mismo día. Resuelto agregando un directorio `<HH-mm-ss>/` por ejecución. |
 | 7 | INP medido sin interacción real garantizada | Medio | El runner solo simula `Tab`+`Tab`+mouse move; sin `interactions` configuradas, el INP capturado puede no representar el patrón de uso real. |
 | 8 | Heurística de SSR en `component.js` | Medio-Alto | Solo verifica `innerHTML.trim().length > 0` en el momento de la medición. Un componente client-rendered que ya pintó para entonces se reporta como SSR. Esto compromete la credibilidad del módulo diferencial del producto si no se documenta o mejora. |
 | 9 | Thresholds y formato duplicados en 3 archivos (`reporter.js`, `markdown.js`, `lighthouse.js`) | Medio | Riesgo de drift: cambiar un umbral en un lugar y olvidar el resto. No es urgente pero crece con cada módulo nuevo. |
@@ -98,7 +98,7 @@ Estos riesgos **no se resuelven en esta iteración** (es documental), pero queda
 - [ ] Sincronizar `package.json`/`package-lock.json` (`npm install` limpio) y fijar `engines.node`.
 - [ ] Actualizar README con el requisito real de Node.
 - [ ] Función `validateConfig(config)` en un módulo nuevo o en `runner.js`, llamada antes de `mkdirSync`.
-- [ ] Decidir y documentar el nuevo esquema de carpeta de salida (timestamp u orden de run dentro del día).
+- [x] Decidir y documentar el nuevo esquema de carpeta de salida (timestamp u orden de run dentro del día) — implementado como `<fecha>/<proyecto>/<HH-mm-ss>/`.
 - [ ] Agregar `.github/workflows/ci.yml` con lint + smoke.
 - [ ] Smoke test: correr `--only vitals` contra una URL pública estable o un servidor estático de fixture.
 

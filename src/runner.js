@@ -3,6 +3,7 @@ import path from 'path';
 import { chromium } from 'playwright';
 import chalk from 'chalk';
 import { loadConfig, ConfigError, validateOnlyOption, printConfigErrorAndExit, printOptionErrorsAndExit, VALID_MODULES } from './config.js';
+import { buildRunPath } from './output-path.js';
 import { checkConnectivity } from './network.js';
 import { setupVitalsCollection, collectVitals } from './vitals.js';
 import { setupGACollection, collectGA } from './ga.js';
@@ -59,8 +60,9 @@ export async function run(options) {
 
   const has = m => activeModules.includes(m);
 
-  const dateSlug = new Date().toISOString().split('T')[0];
-  const outDir = path.join(options.out, dateSlug, config.name);
+  const runStartedAt = new Date();
+  const { dateSlug, runSlug } = buildRunPath(runStartedAt);
+  const outDir = path.join(options.out, dateSlug, config.name, runSlug);
   mkdirSync(outDir, { recursive: true });
 
   console.log(chalk.bold(`\nwebperf-cli — ${config.name}`));
@@ -83,7 +85,7 @@ export async function run(options) {
   }
 
   const browser = await chromium.launch({ headless: !options.headed });
-  const results = { config, timestamp: new Date().toISOString(), pages: [], componentSelector };
+  const results = { config, timestamp: runStartedAt.toISOString(), pages: [], componentSelector };
 
   for (const pagePath of config.pages) {
     const url = `${config.baseUrl}${pagePath}`;

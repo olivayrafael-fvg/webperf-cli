@@ -217,21 +217,23 @@ Por defecto en `~/webperf-reports/`. Configurable con `-o, --out <dir>` o la var
 ~/webperf-reports/
   .history/
     mi-proyecto.jsonl        # historial de runs (un JSON por línea)
-  2024-01-15/
+  2026-06-30/
     mi-proyecto/
-      report.html            # reporte visual completo
-      report.json            # datos raw en JSON
-      screenshots/
-        home_desktop.png
-        home_tablet.png
-        home_mobile.png
-        component_data-testid_footer__desktop.png  # con --component
-        component_data-testid_footer__tablet.png
-        component_data-testid_footer__mobile.png
-        fallback_api_footer.png
+      14-32-10/               # un directorio por ejecución (hora local del run)
+        report.html           # reporte visual completo
+        report.json           # datos raw en JSON
+        report.md             # evidencia QA en Markdown, lista para pegar en PR/ticket
+        screenshots/
+          home_desktop.png
+          home_tablet.png
+          home_mobile.png
+          component_data-testid_footer__desktop.png  # con --component
+          component_data-testid_footer__tablet.png
+          component_data-testid_footer__mobile.png
+          fallback_api_footer.png
 ```
 
-El historial en `.history/` es acumulativo — no se borra entre runs. Los reportes en `2024-01-15/` se sobrescriben si corrés más de una vez en el mismo día para el mismo proyecto.
+El historial en `.history/` es acumulativo — no se borra entre runs. Cada ejecución de `run` genera su propio directorio horario (`HH-mm-ss`) dentro de `<fecha>/<proyecto>/`, así que correr varias veces el mismo día para el mismo proyecto no pisa los reportes anteriores.
 
 > Si usás `--out` en `run`, pasá el mismo valor (o configurá `WEBPERF_OUT_DIR`) al correr `history`, así lee el historial del mismo directorio.
 
