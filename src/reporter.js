@@ -169,7 +169,7 @@ function renderSummary({ pages, cache, fallback }) {
   return `<div class="sec">
   <h2>Resumen</h2>
   <div class="sum">
-    ${lhAvg != null ? `<div class="card"><div class="cl">Lighthouse score</div><div class="cv ${lhClass}">${lhAvg}</div></div>` : ''}
+    ${lhAvg != null ? `<div class="card"><div class="cl">Lighthouse Performance</div><div class="cv ${lhClass}">${lhAvg}</div></div>` : ''}
     <div class="card"><div class="cl">Vitals</div><div class="cv ${vitalsOk ? 'ok' : 'warn'}">${vitalsOk ? '✓' : '⚠'}</div></div>
     <div class="card"><div class="cl">A11y violaciones</div><div class="cv ${a11yViolations === 0 ? 'ok' : 'fail'}">${a11yViolations}</div></div>
     <div class="card"><div class="cl">Cache BFF</div><div class="cv ${cacheOk ? 'ok' : 'fail'}">${cacheOk ? '✓' : '✗'}</div></div>
@@ -363,18 +363,33 @@ function renderBaseline({ baselineTimestamp, delta, error }) {
 </div>`;
 }
 
+function scoreBadge(value) {
+  if (value == null) return '—';
+  const cls = value >= 90 ? 'bg' : value >= 50 ? 'bni' : 'bp';
+  return `<span class="badge b${cls}">${value}</span>`;
+}
+
 function renderLighthouse(pages) {
   const LH_METRICS = ['FCP', 'LCP', 'CLS', 'TBT', 'TTI', 'SI', 'TTFB'];
+  const SCORE_KEYS = ['performance', 'accessibility', 'bestPractices', 'seo'];
+  const SCORE_LABELS = { performance: 'Performance', accessibility: 'Accessibility', bestPractices: 'Best Practices', seo: 'SEO' };
 
-  const rows = pages.map(p => {
+  const scoreRows = pages.map(p => {
     const lh = p.lighthouse;
     if (!lh) return '';
-    const scoreClass = lh.score >= 90 ? 'ok' : lh.score >= 50 ? 'warn' : 'fail';
-    const cells = LH_METRICS.map(m => `<td>${lhBadge(m, lh.metrics[m])}</td>`).join('');
+    const s = lh.scores ?? { performance: lh.score };
     return `<tr>
       <td class="mono">${p.path}</td>
-      <td class="b ${scoreClass}">${lh.score}</td>
-      ${cells}
+      ${SCORE_KEYS.map(k => `<td>${scoreBadge(s[k] ?? null)}</td>`).join('')}
+    </tr>`;
+  }).join('');
+
+  const metricRows = pages.map(p => {
+    const lh = p.lighthouse;
+    if (!lh) return '';
+    return `<tr>
+      <td class="mono">${p.path}</td>
+      ${LH_METRICS.map(m => `<td>${lhBadge(m, lh.metrics[m])}</td>`).join('')}
     </tr>`;
   }).join('');
 
@@ -394,11 +409,18 @@ function renderLighthouse(pages) {
     ? `<p style="margin-top:10px;color:#b36200;font-size:13px">⚠ ${pages.reduce((n, p) => n + (p.lighthouse?.thirdPartyCookies ?? 0), 0)} third-party cookies detectadas</p>`
     : '';
 
+  const formFactor = pages.find(p => p.lighthouse)?.lighthouse?.formFactor ?? '';
+
   return `<div class="sec">
-  <h2>Lighthouse <span style="font-weight:400;text-transform:none;font-size:11px;color:#999">${pages.find(p => p.lighthouse)?.lighthouse?.formFactor ?? ''}</span></h2>
+  <h2>Lighthouse <span style="font-weight:400;text-transform:none;font-size:11px;color:#999">${formFactor}</span></h2>
   <table>
-    <tr><th>Página</th><th>Score</th>${LH_METRICS.map(m => `<th>${m}</th>`).join('')}</tr>
-    ${rows}
+    <tr><th>Página</th>${SCORE_KEYS.map(k => `<th>${SCORE_LABELS[k]}</th>`).join('')}</tr>
+    ${scoreRows}
+  </table>
+  <h3 style="margin:14px 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#999">Métricas de rendimiento</h3>
+  <table>
+    <tr><th>Página</th>${LH_METRICS.map(m => `<th>${m}</th>`).join('')}</tr>
+    ${metricRows}
   </table>
   ${cookieWarning}
   ${errBlock}
