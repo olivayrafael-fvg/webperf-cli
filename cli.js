@@ -3,19 +3,24 @@
 import { Command } from 'commander';
 import { run } from './src/runner.js';
 import { printHistory, DEFAULT_OUT_DIR } from './src/history.js';
+import { loadConfig, ConfigError, printConfigErrorAndExit } from './src/config.js';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 if (existsSync('.env')) process.loadEnvFile('.env');
 
 const DEFAULT_OUT = process.env.WEBPERF_OUT_DIR || DEFAULT_OUT_DIR;
+
+const pkgPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'package.json');
+const { version } = JSON.parse(readFileSync(pkgPath, 'utf-8'));
 
 const program = new Command();
 
 program
   .name('webperf')
   .description('Auditoría de performance y calidad para apps web')
-  .version('1.0.0');
+  .version(version);
 
 program
   .command('run')
@@ -40,7 +45,14 @@ program
   .option('--env <env>', 'Filtrar por entorno (local, qa, staging)')
   .option('--limit <n>', 'Cantidad de runs a mostrar', '10')
   .action(options => {
-    const config = JSON.parse(readFileSync(path.resolve(options.config), 'utf-8'));
+    const configPath = path.resolve(options.config);
+    let config;
+    try {
+      config = loadConfig(configPath);
+    } catch (err) {
+      if (err instanceof ConfigError) return printConfigErrorAndExit(err, configPath);
+      throw err;
+    }
     printHistory(config.name, { env: options.env, limit: parseInt(options.limit, 10), baseDir: options.out });
   });
 

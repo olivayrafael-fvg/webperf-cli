@@ -47,11 +47,11 @@ Relevamiento hecho sobre el código real en `release/0.1` (commit `7890d8b`):
 | # | Riesgo | Impacto | Detalle |
 |---|---|---|---|
 | 1 | Versionado inconsistente (`package.json` 0.1.0 / `package-lock.json` 1.0.0 / CLI hardcodeada 1.0.0) | Alto | `webperf --version` no es confiable. No hay forma de saber qué versión corrió un reporte viejo. |
-| 2 | `engines` no declarado + README dice Node 18+ | Alto | `process.loadEnvFile` no existe en Node 18 (requiere ≥20.6). Un dev con Node 18 falla en el primer `node cli.js`. |
+| 2 | `engines` no declarado + README dice Node 18+ | Alto | `process.loadEnvFile` no existe en Node 18 (requiere ≥20.12.0). Un dev con Node 18 falla en el primer `node cli.js`. |
 | 3 | Sin validación de config | Medio-Alto | Un config mal formado (falta `pages`, `baseUrl` mal tipado) falla en lo profundo del runner con errores poco claros, no en el borde. |
 | 4 | Sin scripts de test/lint/smoke | Alto | No hay forma objetiva de saber si un cambio rompió un módulo antes de mergear. |
 | 5 | Sin CI | Alto | Nada impide mergear código roto; depende 100% de que alguien corra manualmente. |
-| 6 | Reportes se sobreescriben en el mismo día/proyecto | Medio | Corridas múltiples el mismo día pierden el HTML/MD/screenshots anteriores (el historial JSONL sí persiste, pero el reporte visual no). Afecta directamente el caso de uso "antes/después" si se hace en el mismo día. |
+| 6 | Reportes se sobreescriben en el mismo día/proyecto — **resuelto en v0.2.0** | Medio | Corridas múltiples el mismo día pierden el HTML/MD/screenshots anteriores (el historial JSONL sí persiste, pero el reporte visual no). Afecta directamente el caso de uso "antes/después" si se hace en el mismo día. Resuelto agregando un directorio `<HH-mm-ss>/` por ejecución. |
 | 7 | INP medido sin interacción real garantizada | Medio | El runner solo simula `Tab`+`Tab`+mouse move; sin `interactions` configuradas, el INP capturado puede no representar el patrón de uso real. |
 | 8 | Heurística de SSR en `component.js` | Medio-Alto | Solo verifica `innerHTML.trim().length > 0` en el momento de la medición. Un componente client-rendered que ya pintó para entonces se reporta como SSR. Esto compromete la credibilidad del módulo diferencial del producto si no se documenta o mejora. |
 | 9 | Thresholds y formato duplicados en 3 archivos (`reporter.js`, `markdown.js`, `lighthouse.js`) | Medio | Riesgo de drift: cambiar un umbral en un lugar y olvidar el resto. No es urgente pero crece con cada módulo nuevo. |
@@ -71,7 +71,7 @@ Estos riesgos **no se resuelven en esta iteración** (es documental), pero queda
 
 **Alcance:**
 - Unificar versionado: una sola fuente de verdad (`package.json`), CLI la lee dinámicamente (no hardcodeada).
-- Declarar `engines.node` correcto en `package.json` y corregir el README (`Node 20.6+` o la mínima real que soporte `process.loadEnvFile` sin flag).
+- Declarar `engines.node` correcto en `package.json` (`>=20.12.0`, versión mínima real que soporta `process.loadEnvFile`) y corregir el README.
 - Validación de config en el borde (al inicio de `run`/`history`): campos requeridos (`name`, `baseUrl`, `env`, `pages`), con mensaje de error claro y accionable, sin librería nueva (validación manual simple).
 - Scripts mínimos en `package.json`: `lint`, `test` (aunque sea smoke test mínimo), `smoke` (correr `run` contra un config de prueba local/mock).
 - Resolver el overwrite de reportes en el mismo día (sufijo de hora o run-id en el path de salida) — discutir formato sin romper `history`/`compare-last`, que dependen de la estructura por fecha.
@@ -98,8 +98,8 @@ Estos riesgos **no se resuelven en esta iteración** (es documental), pero queda
 - [ ] Sincronizar `package.json`/`package-lock.json` (`npm install` limpio) y fijar `engines.node`.
 - [ ] Actualizar README con el requisito real de Node.
 - [ ] Función `validateConfig(config)` en un módulo nuevo o en `runner.js`, llamada antes de `mkdirSync`.
-- [ ] Decidir y documentar el nuevo esquema de carpeta de salida (timestamp u orden de run dentro del día).
-- [ ] Agregar `.github/workflows/ci.yml` con lint + smoke.
+- [x] Decidir y documentar el nuevo esquema de carpeta de salida (timestamp u orden de run dentro del día) — implementado como `<fecha>/<proyecto>/<HH-mm-ss>/`.
+- [x] Agregar `.github/workflows/ci.yml` con `npm ci` + lint + test + chequeo de versión del CLI (sin smoke test contra browser real todavía — eso queda como tarea siguiente).
 - [ ] Smoke test: correr `--only vitals` contra una URL pública estable o un servidor estático de fixture.
 
 ---

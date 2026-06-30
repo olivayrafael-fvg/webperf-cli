@@ -6,7 +6,7 @@ Estado relevado sobre `release/0.1` (commit `7890d8b`). Este documento describe 
 
 `cli.js` es el único entrypoint (`bin.webperf` en `package.json`). Responsabilidades:
 
-- Carga `.env` (si existe) con `process.loadEnvFile('.env')` antes de leer cualquier variable de entorno. **Esto requiere Node ≥20.6** — ver riesgo en `ROADMAP.md`.
+- Carga `.env` (si existe) con `process.loadEnvFile('.env')` antes de leer cualquier variable de entorno. **Esto requiere Node ≥20.12.0** (declarado en `engines.node` desde v0.2.0).
 - Define dos comandos con Commander:
   - `run`: ejecuta la auditoría completa. Delega toda la lógica a `src/runner.js#run`.
   - `history`: lee el config, parsea JSON directo (sin pasar por el runner) y llama a `src/history.js#printHistory`.
@@ -20,7 +20,7 @@ Es el orquestador central. Flujo de `run(options)`:
 
 1. Lee y parsea el config JSON (sin validación de esquema).
 2. Resuelve qué módulos están activos: todos menos `fallback` y `lighthouse` por defecto, o lo que indique `--only`.
-3. Calcula el directorio de salida: `<out>/<YYYY-MM-DD>/<config.name>/`. Si ya existe (mismo proyecto, mismo día), los archivos se sobreescriben en la generación final del reporte.
+3. Calcula el directorio de salida: `<out>/<YYYY-MM-DD>/<config.name>/<HH-mm-ss>/`, derivando fecha y hora de un único `Date` creado al inicio de `run` (`src/output-path.js#buildRunPath`) — el mismo timestamp se usa para `results.timestamp`. Cada ejecución cae en su propio subdirectorio horario; no hay overwrite entre runs del mismo día (resuelto en v0.2.0).
 4. Verifica conectividad (`src/network.js#checkConnectivity`) antes de lanzar el browser; si falla y el ambiente es `dev`/`qa`, sugiere conectar VPN.
 5. Lanza un browser Playwright (Chromium) una sola vez para todo el run.
 6. Por cada página en `config.pages`:
@@ -95,16 +95,17 @@ Base: `$WEBPERF_OUT_DIR` o `~/webperf-reports/` (default en `history.js#DEFAULT_
     <proyecto>.jsonl          # acumulativo, una línea JSON por run, nunca se borra
   <YYYY-MM-DD>/
     <proyecto>/
-      report.html
-      report.json             # resultado crudo completo (results), sin filtrar
-      report.md
-      report-component.html   # solo si se usó --component
-      report-component.md
-      screenshots/
-        *.png
+      <HH-mm-ss>/              # un directorio por ejecución (hora local del run)
+        report.html
+        report.json             # resultado crudo completo (results), sin filtrar
+        report.md
+        report-component.html   # solo si se usó --component
+        report-component.md
+        screenshots/
+          *.png
 ```
 
-**Riesgo conocido**: si se corre más de una vez el mismo día para el mismo proyecto, el contenido de `<fecha>/<proyecto>/` se sobreescribe completo. El historial en `.history/` sí persiste cada run por separado.
+Cada `run` crea su propio directorio `<HH-mm-ss>/` (resuelto en v0.2.0) — antes de esto, dos runs del mismo día/proyecto se sobreescribían entre sí. El historial en `.history/` sigue siendo acumulativo y ajeno a esta estructura, así que `getLastRun`/`compareWithRun` no se ven afectados.
 
 ## Cómo funciona el historial
 
@@ -120,7 +121,7 @@ En orden de impacto sobre la confiabilidad del producto:
 2. **Falta de validación de config** — cualquier typo en el JSON falla profundo, sin contexto.
 3. **Thresholds duplicados en 3 archivos** (`reporter.js`, `markdown.js`, `lighthouse.js`) — alto riesgo de drift silencioso.
 4. **`navigateTo` duplicado** entre `runner.js` y `responsive.js` — mismo riesgo de drift si se ajusta el manejo de Next.js hydration en un solo lugar.
-5. **Reportes sobreescribibles el mismo día** — rompe el caso de uso "antes/después" si ambas mediciones ocurren el mismo día sin mover el output.
+5. ~~Reportes sobreescribibles el mismo día~~ — resuelto en v0.2.0 con el directorio `<HH-mm-ss>/` por run.
 6. **Versionado desincronizado** (`package.json` / `package-lock.json` / CLI hardcodeada).
 
 ## Qué debería estabilizarse antes de v1.0
@@ -128,6 +129,6 @@ En orden de impacto sobre la confiabilidad del producto:
 - Esquema de config validado en el borde.
 - Una sola fuente de versión.
 - Thresholds centralizados (una sola fuente para `reporter.js`/`markdown.js`/`lighthouse.js`).
-- Política explícita de output (overwrite vs. run-id) documentada y, si cambia, comunicada como breaking change.
+- ~~Política explícita de output (overwrite vs. run-id)~~ — resuelta en v0.2.0 (directorio por run); documentar como breaking change si la estructura vuelve a cambiar.
 - Heurística de SSR documentada como limitación conocida en el propio reporte (mínimo), mejorada si es viable sin romper compatibilidad (deseable).
 - Cobertura de smoke test sobre todos los módulos listados en la tabla de arriba.

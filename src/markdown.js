@@ -79,8 +79,14 @@ function lighthouseSection(pages) {
 
   const METRICS = ['FCP', 'LCP', 'CLS', 'TBT', 'TTI', 'SI', 'TTFB'];
   const blocks = withLh.map(p => {
-    const { score, formFactor, metrics, consoleErrors, thirdPartyCookies } = p.lighthouse;
-    const scoreIcon = score >= 90 ? '✅' : score >= 50 ? '⚠️' : '❌';
+    const { scores, score, formFactor, metrics, consoleErrors, thirdPartyCookies } = p.lighthouse;
+    const s = scores ?? { performance: score };
+    const si = v => v >= 90 ? '✅' : v >= 50 ? '⚠️' : '❌';
+
+    const scoresRow = `| Performance | Accessibility | Best Practices | SEO |
+|---|---|---|---|
+| ${s.performance ?? '—'}/100 ${si(s.performance)} | ${s.accessibility ?? '—'}/100 ${si(s.accessibility)} | ${s.bestPractices ?? '—'}/100 ${si(s.bestPractices)} | ${s.seo ?? '—'}/100 ${si(s.seo)} |`;
+
     const header = `| Métrica | ${METRICS.join(' | ')} |\n|---|${METRICS.map(() => '---').join('|')}|`;
     const row = `| Valor | ${METRICS.map(m => {
       const v = metrics[m];
@@ -94,7 +100,7 @@ function lighthouseSection(pages) {
 
     return `### \`${p.path}\` (${formFactor})
 
-**Score: ${score}/100 ${scoreIcon}**
+${scoresRow}
 
 ${header}
 ${row}
@@ -274,7 +280,7 @@ function summaryTable(results) {
   const lhScores = pages.filter(p => p.lighthouse).map(p => p.lighthouse.score);
   if (lhScores.length) {
     const avg = Math.round(lhScores.reduce((a, b) => a + b, 0) / lhScores.length);
-    rows.push(`| Lighthouse score | ${avg}/100 ${avg >= 90 ? '✅' : avg >= 50 ? '⚠️' : '❌'} |`);
+    rows.push(`| Lighthouse Performance | ${avg}/100 ${avg >= 90 ? '✅' : avg >= 50 ? '⚠️' : '❌'} |`);
   }
 
   const vitalsOk = pages.every(p => !p.vitals || Object.values(p.vitals).every(m => m.rating !== 'poor'));

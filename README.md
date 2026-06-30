@@ -4,7 +4,7 @@ CLI de auditoría de performance y calidad para apps web. Mide Web Vitals, acces
 
 ## Requisitos
 
-- Node.js 18+
+- Node.js >=20.12.0 (la CLI usa `process.loadEnvFile`, disponible desde esa versión)
 - Acceso a la URL del proyecto (VPN si es entorno `dev` o `qa`)
 
 ## Instalación
@@ -51,6 +51,8 @@ Los archivos en `configs/*.json` están en `.gitignore`. Solo se commitea el tem
 | `component.selector` | — | Selector CSS del componente a auditar por defecto (se puede sobreescribir con `--component`) |
 
 > **Entornos `dev` y `qa`**: si la URL no responde, la herramienta muestra un mensaje de error con indicación de conectar VPN antes de reintentar.
+
+> **Validación**: `run` e `history` validan el config antes de hacer nada más (sin abrir browser ni crear reportes). Si falta un campo requerido, `baseUrl` no es una URL válida con `http:`/`https:`, `env` no es uno de los valores permitidos, o `pages` no es un array de rutas que empiecen con `/`, la CLI termina con un mensaje claro y exit code `1`.
 
 ---
 
@@ -215,21 +217,23 @@ Por defecto en `~/webperf-reports/`. Configurable con `-o, --out <dir>` o la var
 ~/webperf-reports/
   .history/
     mi-proyecto.jsonl        # historial de runs (un JSON por línea)
-  2024-01-15/
+  2026-06-30/
     mi-proyecto/
-      report.html            # reporte visual completo
-      report.json            # datos raw en JSON
-      screenshots/
-        home_desktop.png
-        home_tablet.png
-        home_mobile.png
-        component_data-testid_footer__desktop.png  # con --component
-        component_data-testid_footer__tablet.png
-        component_data-testid_footer__mobile.png
-        fallback_api_footer.png
+      14-32-10/               # un directorio por ejecución (hora local del run)
+        report.html           # reporte visual completo
+        report.json           # datos raw en JSON
+        report.md             # evidencia QA en Markdown, lista para pegar en PR/ticket
+        screenshots/
+          home_desktop.png
+          home_tablet.png
+          home_mobile.png
+          component_data-testid_footer__desktop.png  # con --component
+          component_data-testid_footer__tablet.png
+          component_data-testid_footer__mobile.png
+          fallback_api_footer.png
 ```
 
-El historial en `.history/` es acumulativo — no se borra entre runs. Los reportes en `2024-01-15/` se sobrescriben si corrés más de una vez en el mismo día para el mismo proyecto.
+El historial en `.history/` es acumulativo — no se borra entre runs. Cada ejecución de `run` genera su propio directorio horario (`HH-mm-ss`) dentro de `<fecha>/<proyecto>/`, así que correr varias veces el mismo día para el mismo proyecto no pisa los reportes anteriores.
 
 > Si usás `--out` en `run`, pasá el mismo valor (o configurá `WEBPERF_OUT_DIR`) al correr `history`, así lee el historial del mismo directorio.
 
@@ -240,5 +244,16 @@ El historial en `.history/` es acumulativo — no se borra entre runs. Los repor
 1. Copiá el template: `cp configs/project.example.json configs/nombre.json`
 2. Editá `baseUrl`, `pages`, y los campos opcionales según necesidad
 3. Corré: `node cli.js run -c configs/nombre.json`
+
+---
+
+## Desarrollo
+
+```bash
+npm test       # tests nativos (node:test) sobre src/config.js
+npm run lint   # chequeo de sintaxis (node --check) sin dependencias externas
+```
+
+El CI (`.github/workflows/ci.yml`) ejecuta esos mismos comandos —`npm ci`, `npm run lint`, `npm test` y `node cli.js --version`— en cada PR y en cada push a `main`/`release/**`. No corre auditorías reales (sin Chromium/Lighthouse).
 
 Para ambientes protegidos por VPN, configurá `"env": "dev"` o `"env": "qa"` — la herramienta verifica conectividad antes de arrancar y muestra el mensaje apropiado si no hay acceso.

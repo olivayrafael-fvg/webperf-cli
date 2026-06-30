@@ -1,0 +1,25 @@
+{
+  "name": "vercel",
+  "baseUrl": "https://vercel.com",
+  "env": "prod",
+
+  "pages": ["/", "/pricing", "/templates"],
+
+  "breakpoints": {
+    "desktop": 1440,
+    "tablet": 768,
+    "mobile": 390
+  },
+
+  "ga": {
+    "watchEvents": ["page_view"]
+  },
+
+  "lighthouse": {
+    "formFactor": "desktop"
+  },
+
+  "component": {
+    "selector": "nav"
+  }
+}

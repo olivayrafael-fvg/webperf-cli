@@ -1,7 +1,9 @@
-import { readFileSync, mkdirSync } from 'fs';
+import { mkdirSync } from 'fs';
 import path from 'path';
 import { chromium } from 'playwright';
 import chalk from 'chalk';
+import { loadConfig, ConfigError, validateOnlyOption, printConfigErrorAndExit, printOptionErrorsAndExit, VALID_MODULES } from './config.js';
+import { buildRunPath } from './output-path.js';
 import { checkConnectivity } from './network.js';
 import { setupVitalsCollection, collectVitals } from './vitals.js';
 import { setupGACollection, collectGA } from './ga.js';
@@ -40,17 +42,27 @@ async function navigateTo(page, url) {
 
 export async function run(options) {
   const configPath = path.resolve(options.config);
-  const config = JSON.parse(readFileSync(configPath, 'utf-8'));
 
-  const ALL_MODULES = ['vitals', 'a11y', 'ga', 'responsive', 'bundle', 'cache', 'fallback', 'lighthouse'];
+  let config;
+  try {
+    config = loadConfig(configPath);
+  } catch (err) {
+    if (err instanceof ConfigError) return printConfigErrorAndExit(err, configPath);
+    throw err;
+  }
+
+  const onlyErrors = validateOnlyOption(options.only);
+  if (onlyErrors.length > 0) return printOptionErrorsAndExit(onlyErrors);
+
   const activeModules = options.only
     ? options.only.split(',').map(m => m.trim())
-    : ALL_MODULES.filter(m => m !== 'fallback' && m !== 'lighthouse');
+    : VALID_MODULES.filter(m => m !== 'fallback' && m !== 'lighthouse');
 
   const has = m => activeModules.includes(m);
 
-  const dateSlug = new Date().toISOString().split('T')[0];
-  const outDir = path.join(options.out, dateSlug, config.name);
+  const runStartedAt = new Date();
+  const { dateSlug, runSlug } = buildRunPath(runStartedAt);
+  const outDir = path.join(options.out, dateSlug, config.name, runSlug);
   mkdirSync(outDir, { recursive: true });
 
   console.log(chalk.bold(`\nwebperf-cli — ${config.name}`));
@@ -73,7 +85,7 @@ export async function run(options) {
   }
 
   const browser = await chromium.launch({ headless: !options.headed });
-  const results = { config, timestamp: new Date().toISOString(), pages: [], componentSelector };
+  const results = { config, timestamp: runStartedAt.toISOString(), pages: [], componentSelector };
 
   for (const pagePath of config.pages) {
     const url = `${config.baseUrl}${pagePath}`;
