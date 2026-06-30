@@ -10,7 +10,9 @@
     "webperf": "./cli.js"
   },
   "scripts": {
-    "setup": "playwright install chromium"
+    "setup": "playwright install chromium",
+    "test": "node --test",
+    "lint": "node scripts/check-syntax.js"
   },
   "dependencies": {
     "axe-core": "^4.10.2",

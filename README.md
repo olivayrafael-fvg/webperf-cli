@@ -243,4 +243,13 @@ El historial en `.history/` es acumulativo — no se borra entre runs. Los repor
 2. Editá `baseUrl`, `pages`, y los campos opcionales según necesidad
 3. Corré: `node cli.js run -c configs/nombre.json`
 
+---
+
+## Desarrollo
+
+```bash
+npm test       # tests nativos (node:test) sobre src/config.js
+npm run lint   # chequeo de sintaxis (node --check) sin dependencias externas
+```
+
 Para ambientes protegidos por VPN, configurá `"env": "dev"` o `"env": "qa"` — la herramienta verifica conectividad antes de arrancar y muestra el mensaje apropiado si no hay acceso.
