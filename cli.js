@@ -24,6 +24,7 @@ program
     'Compara contra el último run. Sin valor usa el mismo entorno del config; o pasá un env específico: --compare-last qa'
   )
   .option('--component <selector>', 'Scoping a un componente específico. Ej: "#footer", ".newsletter", "[data-testid=footer]"')
+  .option('--ticket <id>', 'ID de ticket a incluir en el reporte Markdown (ej. WBTD-753)')
   .option('--headed', 'Ejecutar browser en modo visible')
   .action(run);
 

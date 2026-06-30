@@ -17,6 +17,18 @@
     "watchEvents": ["page_view", "view_item_list", "select_item", "add_to_cart"]
   },
 
+  "_comment_interactions": "Opcional. Secuencia de acciones para disparar eventos GA que solo ocurren con click/submit (el módulo `ga` por sí solo solo captura eventos pasivos de carga/scroll). Bloquea navegación automáticamente para que los <a href> no rompan la página.",
+  "interactions": [
+    { "selector": "selector-css-del-elemento", "action": "click" },
+    { "selector": "selector-del-input", "action": "fill", "value": "texto a tipear" },
+    { "selector": "selector-del-input", "action": "press", "value": "Enter" }
+  ],
+
+  "_comment_mockRoutes": "Opcional. Mockea endpoints del BFF durante `interactions` para evitar efectos reales (ej. no suscribir un email real al hacer submit de un newsletter).",
+  "mockRoutes": [
+    { "url": "**/api/algun-endpoint/**", "status": 200, "body": "{\"ok\":true}" }
+  ],
+
   "rum": {
     "provider": "datadog",
     "expectedEndpoint": "browser-intake-datadoghq.com"
