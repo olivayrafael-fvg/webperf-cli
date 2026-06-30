@@ -12,8 +12,10 @@ import { setupBundleCollection, collectBundle } from './bundle.js';
 import { runCacheCheck } from './cache.js';
 import { runFallback } from './fallback.js';
 import { runLighthouse } from './lighthouse.js';
+import { blockExternalNavigation, mockRoutes, runInteractions } from './interactions.js';
 import { appendRun, getLastRun, compareWithRun } from './history.js';
 import { generateReport } from './reporter.js';
+import { generateMarkdownReport } from './markdown.js';
 
 // goto resolves after the first navigation, but Next.js SPAs fire a second
 // client-side router.replace on hydration that destroys the execution context.
@@ -142,6 +144,21 @@ export async function run(options) {
     }
 
     if (has('ga') && gaCollector) {
+      if (config.interactions?.length) {
+        // Route handlers run in reverse registration order (last registered wins
+        // for matching URLs). blockExternalNavigation must go first so the more
+        // specific mockRoutes patterns get checked first and short-circuit before
+        // falling through to its catch-all '**' continue().
+        await blockExternalNavigation(page, pagePath);
+        if (config.mockRoutes?.length) await mockRoutes(page, config.mockRoutes);
+        process.stdout.write('  interactions...');
+        pageResult.interactions = await runInteractions(page, config.interactions);
+        const failed = pageResult.interactions.filter(i => !i.ok).length;
+        console.log(failed === 0
+          ? chalk.green(' ✓ todas OK')
+          : chalk.yellow(` ⚠ ${failed} fallida(s)`)
+        );
+      }
       pageResult.ga = await collectGA(page, gaCollector);
     }
 
@@ -192,9 +209,7 @@ export async function run(options) {
 
   await browser.close();
 
-  // Siempre guardamos en el historial
-  appendRun(results);
-
+  // Buscar el run anterior ANTES de guardar el actual — si no, se compara contra sí mismo.
   if (options.compareLast) {
     const prev = getLastRun(config.name, options.compareLast === true ? config.env : options.compareLast);
     results.baseline = compareWithRun(results, prev);
@@ -205,8 +220,18 @@ export async function run(options) {
     }
   }
 
+  // Siempre guardamos en el historial
+  appendRun(results);
+
   const { general, component: componentReport } = generateReport(results, outDir);
+  const { general: mdGeneral, component: mdComponent } = generateMarkdownReport(results, outDir, {
+    ticket: options.ticket,
+    configPath: options.config,
+  });
+
   console.log(chalk.bold(`\n✓ Reporte: ${general}`));
   if (componentReport) console.log(chalk.cyan(`  Componente: ${componentReport}`));
+  console.log(chalk.gray(`  Markdown: ${mdGeneral}`));
+  if (mdComponent) console.log(chalk.gray(`  Markdown componente: ${mdComponent}`));
   console.log();
 }

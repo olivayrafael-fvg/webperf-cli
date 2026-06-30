@@ -111,7 +111,7 @@ export function generateReport(results, outDir) {
 
   const paths = { general: generalPath };
 
-  const hasComponentData = pages.some(p => p.a11yComponent || p.responsiveComponent);
+  const hasComponentData = pages.some(p => p.component || p.a11yComponent || p.responsiveComponent);
   if (hasComponentData && componentSelector) {
     const componentHtml = buildPage(
       `webperf componente — ${config.name}`,
@@ -307,12 +307,18 @@ function renderGA(pages) {
     </tr>`;
   }).join('');
 
+  const failedInteractions = pages.flatMap(p => (p.interactions ?? []).filter(i => !i.ok).map(i => ({ ...i, page: p.path })));
+  const interactionsWarning = failedInteractions.length === 0 ? '' : `
+    <p style="margin-top:10px;color:#c62828;font-size:13px">⚠ Interacciones fallidas (revisar selector):</p>
+    ${failedInteractions.map(i => `<div class="vi vser"><span class="mono">${i.selector}</span> (${i.action}) en <span class="mono">${i.page}</span> — ${i.error}</div>`).join('')}`;
+
   return `<div class="sec">
   <h2>GA / RUM Events</h2>
   <table>
     <tr><th>Página</th><th>Eventos esperados</th><th>Total capturado</th></tr>
     ${blocks}
   </table>
+  ${interactionsWarning}
 </div>`;
 }
 
