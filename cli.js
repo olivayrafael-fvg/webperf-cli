@@ -5,17 +5,21 @@ import { run } from './src/runner.js';
 import { printHistory, DEFAULT_OUT_DIR } from './src/history.js';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 if (existsSync('.env')) process.loadEnvFile('.env');
 
 const DEFAULT_OUT = process.env.WEBPERF_OUT_DIR || DEFAULT_OUT_DIR;
+
+const pkgPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'package.json');
+const { version } = JSON.parse(readFileSync(pkgPath, 'utf-8'));
 
 const program = new Command();
 
 program
   .name('webperf')
   .description('Auditoría de performance y calidad para apps web')
-  .version('1.0.0');
+  .version(version);
 
 program
   .command('run')

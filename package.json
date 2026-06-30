@@ -1,8 +1,11 @@
 {
   "name": "webperf-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Auditoría de performance y calidad para apps web",
   "type": "module",
+  "engines": {
+    "node": ">=20.12.0"
+  },
   "bin": {
     "webperf": "./cli.js"
   },

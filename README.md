@@ -4,7 +4,7 @@ CLI de auditoría de performance y calidad para apps web. Mide Web Vitals, acces
 
 ## Requisitos
 
-- Node.js 18+
+- Node.js >=20.12.0 (la CLI usa `process.loadEnvFile`, disponible desde esa versión)
 - Acceso a la URL del proyecto (VPN si es entorno `dev` o `qa`)
 
 ## Instalación

@@ -6,7 +6,7 @@ Estado relevado sobre `release/0.1` (commit `7890d8b`). Este documento describe 
 
 `cli.js` es el único entrypoint (`bin.webperf` en `package.json`). Responsabilidades:
 
-- Carga `.env` (si existe) con `process.loadEnvFile('.env')` antes de leer cualquier variable de entorno. **Esto requiere Node ≥20.6** — ver riesgo en `ROADMAP.md`.
+- Carga `.env` (si existe) con `process.loadEnvFile('.env')` antes de leer cualquier variable de entorno. **Esto requiere Node ≥20.12.0** (declarado en `engines.node` desde v0.2.0).
 - Define dos comandos con Commander:
   - `run`: ejecuta la auditoría completa. Delega toda la lógica a `src/runner.js#run`.
   - `history`: lee el config, parsea JSON directo (sin pasar por el runner) y llama a `src/history.js#printHistory`.
