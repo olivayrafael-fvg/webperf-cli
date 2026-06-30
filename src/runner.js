@@ -211,7 +211,7 @@ export async function run(options) {
 
   // Buscar el run anterior ANTES de guardar el actual — si no, se compara contra sí mismo.
   if (options.compareLast) {
-    const prev = getLastRun(config.name, options.compareLast === true ? config.env : options.compareLast);
+    const prev = getLastRun(config.name, options.compareLast === true ? config.env : options.compareLast, options.out);
     results.baseline = compareWithRun(results, prev);
     if (results.baseline.error) {
       console.log(chalk.yellow(`\n⚠ ${results.baseline.error}`));
@@ -221,7 +221,7 @@ export async function run(options) {
   }
 
   // Siempre guardamos en el historial
-  appendRun(results);
+  appendRun(results, options.out);
 
   const { general, component: componentReport } = generateReport(results, outDir);
   const { general: mdGeneral, component: mdComponent } = generateMarkdownReport(results, outDir, {
