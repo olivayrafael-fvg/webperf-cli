@@ -88,7 +88,7 @@ node cli.js run -c configs/mi-proyecto.json
 | `cache` | Verifica 304 y headers Cache-Control en endpoints BFF |
 | `ga` | Captura eventos de `dataLayer` y requests a GA / Datadog RUM |
 | `fallback` | Bloquea endpoints BFF y verifica que la página renderiza igual |
-| `lighthouse` | Ejecuta Lighthouse programático (score + FCP/LCP/CLS/TBT/TTI/TTFB + console errors) |
+| `lighthouse` | Ejecuta Lighthouse programático: scores de Performance, Accessibility, Best Practices y SEO (0-100) + métricas FCP/LCP/CLS/TBT/TTI/SI/TTFB + console errors |
 
 **Ejemplos:**
 

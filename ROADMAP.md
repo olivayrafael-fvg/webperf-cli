@@ -77,6 +77,9 @@ Estos riesgos **no se resuelven en esta iteración** (es documental), pero queda
 - Resolver el overwrite de reportes en el mismo día (sufijo de hora o run-id en el path de salida) — discutir formato sin romper `history`/`compare-last`, que dependen de la estructura por fecha.
 - CI básico (GitHub Actions): lint + smoke test en cada PR.
 
+**Agregado durante la release (fuera del alcance original, aceptado):**
+- El módulo `lighthouse` ahora reporta los 4 scores de categoría (Performance, Accessibility, Best Practices, SEO) en vez de solo Performance. Se aceptó dentro de `v0.2.0` por ser una mejora de legibilidad del reporte sin tocar arquitectura ni agregar dependencias.
+
 **Fuera de alcance:**
 - Nuevas métricas o módulos.
 - Cambios en el formato del reporte Markdown/HTML.
@@ -94,13 +97,13 @@ Estos riesgos **no se resuelven en esta iteración** (es documental), pero queda
 - Validación de config muy estricta puede romper configs reales ya en uso si hay campos que hoy son opcionales de facto pero no están documentados como tales.
 
 **Tareas sugeridas:**
-- [ ] CLI lee versión desde `package.json` (`createRequire` + `package.json`).
-- [ ] Sincronizar `package.json`/`package-lock.json` (`npm install` limpio) y fijar `engines.node`.
-- [ ] Actualizar README con el requisito real de Node.
-- [ ] Función `validateConfig(config)` en un módulo nuevo o en `runner.js`, llamada antes de `mkdirSync`.
+- [x] CLI lee versión desde `package.json` (implementado con `fileURLToPath` + `readFileSync`, no `createRequire`; mismo resultado).
+- [x] Sincronizar `package.json`/`package-lock.json` (`npm install` limpio) y fijar `engines.node`.
+- [x] Actualizar README con el requisito real de Node.
+- [x] Función `validateConfig(config)` en `src/config.js`, llamada antes de `mkdirSync` (vía `loadConfig`).
 - [x] Decidir y documentar el nuevo esquema de carpeta de salida (timestamp u orden de run dentro del día) — implementado como `<fecha>/<proyecto>/<HH-mm-ss>/`.
 - [x] Agregar `.github/workflows/ci.yml` con `npm ci` + lint + test + chequeo de versión del CLI (sin smoke test contra browser real todavía — eso queda como tarea siguiente).
-- [ ] Smoke test: correr `--only vitals` contra una URL pública estable o un servidor estático de fixture.
+- [ ] Smoke test: correr `--only vitals` contra una URL pública estable o un servidor estático de fixture. **Pendiente para v0.3.0.**
 
 ---
 
