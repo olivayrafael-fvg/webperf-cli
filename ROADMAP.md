@@ -99,7 +99,7 @@ Estos riesgos **no se resuelven en esta iteración** (es documental), pero queda
 - [ ] Actualizar README con el requisito real de Node.
 - [ ] Función `validateConfig(config)` en un módulo nuevo o en `runner.js`, llamada antes de `mkdirSync`.
 - [x] Decidir y documentar el nuevo esquema de carpeta de salida (timestamp u orden de run dentro del día) — implementado como `<fecha>/<proyecto>/<HH-mm-ss>/`.
-- [ ] Agregar `.github/workflows/ci.yml` con lint + smoke.
+- [x] Agregar `.github/workflows/ci.yml` con `npm ci` + lint + test + chequeo de versión del CLI (sin smoke test contra browser real todavía — eso queda como tarea siguiente).
 - [ ] Smoke test: correr `--only vitals` contra una URL pública estable o un servidor estático de fixture.
 
 ---

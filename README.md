@@ -254,4 +254,6 @@ npm test       # tests nativos (node:test) sobre src/config.js
 npm run lint   # chequeo de sintaxis (node --check) sin dependencias externas
 ```
 
+El CI (`.github/workflows/ci.yml`) ejecuta esos mismos comandos —`npm ci`, `npm run lint`, `npm test` y `node cli.js --version`— en cada PR y en cada push a `main`/`release/**`. No corre auditorías reales (sin Chromium/Lighthouse).
+
 Para ambientes protegidos por VPN, configurá `"env": "dev"` o `"env": "qa"` — la herramienta verifica conectividad antes de arrancar y muestra el mensaje apropiado si no hay acceso.

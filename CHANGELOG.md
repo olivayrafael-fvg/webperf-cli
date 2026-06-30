@@ -7,6 +7,7 @@
 - Validación de módulos permitidos en `--only`.
 - Tests nativos con `node:test` para la validación de configuración (`test/config.test.js`).
 - Script `lint` mínimo para chequeo de sintaxis sin dependencias externas (`scripts/check-syntax.js`).
+- CI básico con GitHub Actions para ejecutar instalación limpia, lint y tests.
 
 ### Changed
 - Se unificó el versionado del CLI usando `package.json` como fuente única de verdad.
