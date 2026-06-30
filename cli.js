@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import { run } from './src/runner.js';
 import { printHistory, DEFAULT_OUT_DIR } from './src/history.js';
+import { loadConfig, ConfigError, printConfigErrorAndExit } from './src/config.js';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -44,7 +45,14 @@ program
   .option('--env <env>', 'Filtrar por entorno (local, qa, staging)')
   .option('--limit <n>', 'Cantidad de runs a mostrar', '10')
   .action(options => {
-    const config = JSON.parse(readFileSync(path.resolve(options.config), 'utf-8'));
+    const configPath = path.resolve(options.config);
+    let config;
+    try {
+      config = loadConfig(configPath);
+    } catch (err) {
+      if (err instanceof ConfigError) return printConfigErrorAndExit(err, configPath);
+      throw err;
+    }
     printHistory(config.name, { env: options.env, limit: parseInt(options.limit, 10), baseDir: options.out });
   });
 

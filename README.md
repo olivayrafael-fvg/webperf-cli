@@ -52,6 +52,8 @@ Los archivos en `configs/*.json` están en `.gitignore`. Solo se commitea el tem
 
 > **Entornos `dev` y `qa`**: si la URL no responde, la herramienta muestra un mensaje de error con indicación de conectar VPN antes de reintentar.
 
+> **Validación**: `run` e `history` validan el config antes de hacer nada más (sin abrir browser ni crear reportes). Si falta un campo requerido, `baseUrl` no es una URL válida con `http:`/`https:`, `env` no es uno de los valores permitidos, o `pages` no es un array de rutas que empiecen con `/`, la CLI termina con un mensaje claro y exit code `1`.
+
 ---
 
 ## Comandos
