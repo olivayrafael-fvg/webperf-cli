@@ -1,3 +1,5 @@
 node_modules/
 configs/*.json
 !configs/*.example.json
+.env
+!.env.example

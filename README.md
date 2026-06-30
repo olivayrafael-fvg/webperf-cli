@@ -69,7 +69,7 @@ node cli.js run -c configs/mi-proyecto.json
 | Flag | Default | Descripción |
 |---|---|---|
 | `-c, --config <path>` | — | Ruta al archivo de config (requerido) |
-| `-o, --out <dir>` | `~/webstore-reports` | Directorio base de salida |
+| `-o, --out <dir>` | `~/webperf-reports` (o `$WEBPERF_OUT_DIR`) | Directorio base de salida |
 | `--only <módulos>` | todos menos fallback | Módulos separados por coma |
 | `--compare-last [env]` | — | Compara vitals contra el último run guardado |
 | `--component <selector>` | — | Limita auditoría a un componente específico (ver sección) |
@@ -172,6 +172,7 @@ node cli.js history -c configs/mi-proyecto.json
 | Flag | Default | Descripción |
 |---|---|---|
 | `-c, --config <path>` | — | Config del proyecto (requerido) |
+| `-o, --out <dir>` | `~/webperf-reports` (o `$WEBPERF_OUT_DIR`) | Directorio donde se guardó el historial (debe coincidir con el `--out` usado en `run`) |
 | `--env <env>` | todos | Filtra por entorno |
 | `--limit <n>` | 10 | Cantidad de runs a mostrar |
 
@@ -208,8 +209,10 @@ El reporte generado en el paso 3 incluye una tabla con el delta por métrica (an
 
 ## Dónde se guardan los reportes
 
+Por defecto en `~/webperf-reports/`. Configurable con `-o, --out <dir>` o la variable de entorno `WEBPERF_OUT_DIR`.
+
 ```
-~/webstore-reports/
+~/webperf-reports/
   .history/
     mi-proyecto.jsonl        # historial de runs (un JSON por línea)
   2024-01-15/
@@ -227,6 +230,8 @@ El reporte generado en el paso 3 incluye una tabla con el delta por métrica (an
 ```
 
 El historial en `.history/` es acumulativo — no se borra entre runs. Los reportes en `2024-01-15/` se sobrescriben si corrés más de una vez en el mismo día para el mismo proyecto.
+
+> Si usás `--out` en `run`, pasá el mismo valor (o configurá `WEBPERF_OUT_DIR`) al correr `history`, así lee el historial del mismo directorio.
 
 ---
 

@@ -2,13 +2,15 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, appendFileSync } fr
 import path from 'path';
 import os from 'os';
 
-function historyFile(configName) {
-  const dir = path.join(os.homedir(), 'webstore-reports', '.history');
+export const DEFAULT_OUT_DIR = path.join(os.homedir(), 'webperf-reports');
+
+function historyFile(configName, baseDir = DEFAULT_OUT_DIR) {
+  const dir = path.join(baseDir, '.history');
   mkdirSync(dir, { recursive: true });
   return path.join(dir, `${configName}.jsonl`);
 }
 
-export function appendRun(results) {
+export function appendRun(results, baseDir) {
   const entry = {
     id: results.timestamp,
     env: results.config.env || 'local',
@@ -20,11 +22,11 @@ export function appendRun(results) {
       a11y: p.a11y ? { violations: p.a11y.violations.length } : null,
     })),
   };
-  appendFileSync(historyFile(results.config.name), JSON.stringify(entry) + '\n');
+  appendFileSync(historyFile(results.config.name, baseDir), JSON.stringify(entry) + '\n');
 }
 
-export function loadHistory(configName) {
-  const file = historyFile(configName);
+export function loadHistory(configName, baseDir) {
+  const file = historyFile(configName, baseDir);
   if (!existsSync(file)) return [];
   return readFileSync(file, 'utf-8')
     .split('\n')
@@ -33,8 +35,8 @@ export function loadHistory(configName) {
 }
 
 // Returns the last run matching the given env (or any env if not specified)
-export function getLastRun(configName, env) {
-  const runs = loadHistory(configName);
+export function getLastRun(configName, env, baseDir) {
+  const runs = loadHistory(configName, baseDir);
   const filtered = env ? runs.filter(r => r.env === env) : runs;
   return filtered.at(-1) ?? null;
 }
@@ -70,8 +72,8 @@ export function compareWithRun(results, previous) {
   return { previousId: previous.id, previousEnv: previous.env, delta };
 }
 
-export function printHistory(configName, { limit = 10, env } = {}) {
-  const runs = loadHistory(configName);
+export function printHistory(configName, { limit = 10, env, baseDir } = {}) {
+  const runs = loadHistory(configName, baseDir);
   const filtered = env ? runs.filter(r => r.env === env) : runs;
   const shown = filtered.slice(-limit).reverse();
 
